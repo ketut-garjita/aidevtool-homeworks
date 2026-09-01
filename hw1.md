@@ -7,6 +7,7 @@ Answer the questions below to complete your homework.
     ```
     Answer: Gemini CLI
     ```
+    ![Gemini CLI](./assets/Gemini-CLI.png)
 ---
 2. What are the 2-4 features your spec settled on? (1 point)
     ```
@@ -32,21 +33,30 @@ Answer the questions below to complete your homework.
     ```
     Answer: settings.py
     ```
+
+    ![Django INSTALLED_APPS](./assets/Django-installed-apps.png)
 ---
 4. What is task 1 in your backlog.md? (1 point)
     ```
     Answer: Task 1 is: Set up the Chore model.
     ```
+    
+   ![task1 of backlog.md](./assets/task1-backlog.md.png)
 ---
 5. Which command starts the Django development server? (1 point)
     ```
     Answer: uv run python manage.py runserver
     ```
+    
+    ![Django development server](./assets/Django-development-server.png)
+   
 ---
 6. Which command runs the tests in the terminal? (1 point)
     ```
     Answer: python manage.py test
     ```
+
+    ![manage test](./assets/manage-test.png)
 ---
 
    
