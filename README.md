@@ -1,4 +1,4 @@
-# aidevtool-homeworks
+# aidevtools-homeworks
 ## AI Dev Tools Zoomcamp: AI-Native Software Engineering
 
 Course: [https://github.com/DataTalksClub/ai-dev-tools-zoomcamp](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp)
