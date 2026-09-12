@@ -54,3 +54,10 @@ Answer: uv run pytest -v
 ### Homework URL 
 [https://github.com/ketut-garjita/QueueBite](https://github.com/ketut-garjita/QueueBite)
 
+### Learning in public links
+
+[LinkedIn](https://lnkd.in/p/g-3C9VVb)
+
+[X](https://x.com/pemujamu1979/status/2098713752548122747)
+
+
