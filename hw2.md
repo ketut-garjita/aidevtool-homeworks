@@ -57,15 +57,15 @@ Answer: uv run pytest -v
 
 ### Learning in public links
 
-[LinkedIn](https://lnkd.in/p/g-3C9VVb)
+1. [LinkedIn](https://lnkd.in/p/g-3C9VVb)
 
-[X](https://x.com/pemujamu1979/status/2098713752548122747)
+2. [X](https://x.com/pemujamu1979/status/2098713752548122747)
 
-[PageDuo](https://esa-data.sites.pageduo.ai/AI%20Data%20Engineering%20Portfolio/queuebite.html)
+3. [PageDuo](https://esa-data.sites.pageduo.ai/AI%20Data%20Engineering%20Portfolio/queuebite.html)
 
-[Instagram](https://www.instagram.com/p/DdQMGNCAUNG/?utm_source=ig_web_copy_link&stkn=MzRlODBiNWFlZA==)
+4. [Instagram](https://www.instagram.com/p/DdQMGNCAUNG/?utm_source=ig_web_copy_link&stkn=MzRlODBiNWFlZA==)
 
-[Facebook](https://www.facebook.com/ketut.garjita/posts/pfbid02K2sE62eTRuRcvW52G6hsCY3J6uJDuTFoAvHLp9JNyntq47nR26nYpJyy6HwmBzfDl)
+5. [Facebook](https://www.facebook.com/ketut.garjita/posts/pfbid02K2sE62eTRuRcvW52G6hsCY3J6uJDuTFoAvHLp9JNyntq47nR26nYpJyy6HwmBzfDl)
 
 
 
