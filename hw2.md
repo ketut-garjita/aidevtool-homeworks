@@ -63,4 +63,10 @@ Answer: uv run pytest -v
 
 [PageDuo](https://esa-data.sites.pageduo.ai/AI%20Data%20Engineering%20Portfolio/queuebite.html)
 
+[Instagram](https://www.instagram.com/p/DdQMGNCAUNG/?utm_source=ig_web_copy_link&stkn=MzRlODBiNWFlZA==)
+
+[Facebook](https://www.facebook.com/ketut.garjita/posts/pfbid02K2sE62eTRuRcvW52G6hsCY3J6uJDuTFoAvHLp9JNyntq47nR26nYpJyy6HwmBzfDl)
+
+
+
 
