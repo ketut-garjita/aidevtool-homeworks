@@ -67,6 +67,10 @@ Answer: uv run pytest -v
 
 5. [Facebook](https://www.facebook.com/ketut.garjita/posts/pfbid02K2sE62eTRuRcvW52G6hsCY3J6uJDuTFoAvHLp9JNyntq47nR26nYpJyy6HwmBzfDl)
 
+6. [X](https://x.com/mytamanpuspa/status/2099357948661334428?s=20)
+
+7. [Blogger](https://esadata.blogspot.com/2026/09/queuebite-ai-powered-restaurant.html)
+
 
 
 
