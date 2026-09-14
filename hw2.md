@@ -67,7 +67,7 @@ Answer: uv run pytest -v
 
 5. [Facebook](https://www.facebook.com/ketut.garjita/posts/pfbid02K2sE62eTRuRcvW52G6hsCY3J6uJDuTFoAvHLp9JNyntq47nR26nYpJyy6HwmBzfDl)
 
-6. [Substack](https://substack.com/@tutgar/note/p-215619071?r=1tcuvl&utm_source=notes-share-action&utm_medium=web)
+6. [Substack](https://tutgar.substack.com/p/queuebite)
 
 7. [Blogger](https://esadata.blogspot.com/2026/09/queuebite-ai-powered-restaurant.html)
 
