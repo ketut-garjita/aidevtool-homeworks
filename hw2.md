@@ -23,7 +23,8 @@ Answer: QueueBite — AI-Powered Restaurant Waitlist Manager
 ### 3. What is the sha1 hash for this commit? (1 point)
 
 ```
-Answer: 92b0613
+Answer: 2650658
+ 
 ```
 
 ### 4. Which command do you use to start the frontend? (1 point)
