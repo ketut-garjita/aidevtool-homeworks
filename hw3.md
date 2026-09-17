@@ -863,5 +863,22 @@ Database Hostname : postgres
 
 This proves that the Agent Relay is running in Compose and connecting to PostgreSQL via the Compose service name.
 
+### Answer to Question 4: postgres
+
+## Question 5: Deploy to Kubernetes
+
+Ask your coding agent to install kind and kubectl if needed, then create a local Kubernetes cluster.
+
+Create manifests in k8s/ for Agent Relay and PostgreSQL, including Services, persistent DB storage, and readiness checks. Load your Docker image into kind and deploy the application.
+
+Check that the pods are ready. Open the dashboard through port forwarding and verify the task flow from Question 2.
+
+Which Kubernetes resource keeps the requested number of application replicas running and manages updates?
+- Service
+- ConfigMap
+- Deployment
+- Secret
+
+Solution:
 
 
