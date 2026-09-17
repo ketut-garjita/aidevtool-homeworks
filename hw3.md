@@ -424,3 +424,18 @@ source code → Docker image → container → published port → HTTP API
 
 
 So the flow is proven:
+```text
+Python source
+    ↓
+Dockerfile
+    ↓
+agent-relay:local
+    ↓
+Docker container
+    ↓
+localhost:8000
+    ↓
+/health + /ready
+```
+
+
