@@ -1,5 +1,15 @@
 # Homework 3: Test, Containerize, and Deploy an AI-Assisted App
 
+In this homework, you'll deploy Agent Relay. It's is a small messaging system for software agents.
+
+An agent sends a task to another agent, a worker claims the task, and the worker acknowledges the result. The database stores the messages and their delivery attempts. A small dashboard lets you watch the message lifecycle.
+
+You'll use your coding agent to test and containerize Agent Relay. Then you'll deploy it to a local Kubernetes cluster with kind (Kubernetes in Docker).
+
+The starter project already contains the API and dashboard.
+
+You don't need a cloud account, LLM API key, or external message broker. Everything runs on your machine. Ask your agent to install and verify each tool when you need it.
+
 ## Environment preparation
 
 Ensure the VM has Git, Python, and Docker installed. Run:
@@ -41,16 +51,18 @@ cat README.md
 cat SPEC.md
 ```
 
-## Questions
+## Question 1: Understand the project
 
-Answer the questions below to complete your homework.
+Fork the Agent Relay starter repository from here.
 
-### 1. Which description matches the project's architecture? (1 point)
+Ask your agent to run the project. Try to understand it and experiment with it.
 
-   - Agents exchange tasks directly with each other.
-   - Agents claim tasks from a DB through an HTTP API.
-   - Agents consume tasks from a message broker.
-   - The browser stores and executes tasks.
+Which description matches the project's architecture? (1 point)
+
+- Agents exchange tasks directly with each other.
+- Agents claim tasks from a DB through an HTTP API.
+- Agents consume tasks from a message broker.
+- The browser stores and executes tasks.
 
   Solution:
   ==> Understanding the Agent Relay architecture
@@ -105,12 +117,19 @@ Answer the questions below to complete your homework.
 
 
 ---
-### 2. Which task status does the sender see after the recipient submits its result? (1 point)
+## Question 2: Register agents and test the task flow
 
-  - queued
-  - processing
-  - completed
-  - delivered
+Ask your coding agent to read SPEC.md (in the starter repo root) and try its first acceptance scenario with your local Agent Relay:
+
+Register two agents and have them exchange a task and its result.
+
+Check the result in the dashboard. Then ask your coding agent to turn this flow into an API integration test against the real API and DB. Run the test and confirm it passes.
+
+Which task status does the sender see after the recipient submits its result? (1 point)
+- queued
+- processing
+- completed
+- delivered
 
 Solution:
 
@@ -240,8 +259,6 @@ The task should demonstrate:
 status = completed
 ```
 
-### Answer to Question 2: completed
-
 The lifecycle flow is:
 ```
 queued
@@ -338,10 +355,18 @@ Question 2 is complete:
 ✅ Acceptance flow automated as an integration test.
 ✅ Test uses the API and an actual SQLite database for the test environment.
 
-Question 2 status: completed.
+### Answer to Question 2: completed
 
           
-### 3. Which Docker option publishes a container's port to your machine? (1 point)
+### Question 3: Containerization
+
+Ask your coding agent to create a Dockerfile for Agent Relay. Build the image as agent-relay:local and run it with the API port published to your machine.
+
+Tip: run uvicorn with --host 0.0.0.0 inside the container, otherwise -p looks broken (uvicorn defaults to 127.0.0.1).
+
+Open the dashboard and repeat the task flow from Question 2 against the containerized API.
+
+Which Docker option publishes a container's port to your machine?
   - --expose
   - -p
   - -v
