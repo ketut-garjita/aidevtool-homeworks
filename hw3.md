@@ -331,18 +331,19 @@ def test_acceptance_task_flow_sender_sees_completed():
   ```
   uv run pytest -q
   ```
-....                                                                                                                                                           [100%]
-========================================================================== warnings summary ===========================================================================
-.venv/lib/python3.11/site-packages/fastapi/testclient.py:1
-  /home/dataeng/projects/zoomcamp/myprojects/agent-relay/.venv/lib/python3.11/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
-    from starlette.testclient import TestClient as TestClient  # noqa
-
-.venv/lib/python3.11/site-packages/starlette/testclient.py:53
-  /home/dataeng/projects/zoomcamp/myprojects/agent-relay/.venv/lib/python3.11/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
-    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-5 passed, 2 warnings in 4.38s
+  ```                                                                                                                                                           [100%]
+  ========================================================================== warnings summary ===========================================================================
+  .venv/lib/python3.11/site-packages/fastapi/testclient.py:1
+    /home/dataeng/projects/zoomcamp/myprojects/agent-relay/.venv/lib/python3.11/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+      from starlette.testclient import TestClient as TestClient  # noqa
+  
+  .venv/lib/python3.11/site-packages/starlette/testclient.py:53
+    /home/dataeng/projects/zoomcamp/myprojects/agent-relay/.venv/lib/python3.11/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+      _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+  
+  -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+  5 passed, 2 warnings in 4.38s
+  ```
 
 Question 2 is complete:
 
