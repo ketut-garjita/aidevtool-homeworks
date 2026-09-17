@@ -485,5 +485,383 @@ Which hostname should the API use to connect to the postgres service in Docker C
 
 Solution:
 
+Q4 — PostgreSQL + Docker Compose
+
+Now we move on to a more important step: replacing the SQLite database with PostgreSQL and running Agent Relay alongside PostgreSQL using Docker Compose.
+
+The target architecture is as follows:
+
+┌──────────────────────┐
+│     agent-relay       │
+│      FastAPI          │
+│       :8000           │
+└──────────┬───────────┘
+│
+PostgreSQL
+postgres:5432
+│
+┌──────────▼───────────┐
+│     persistent        │
+│       volume          │
+└──────────────────────┘
+
+The key requirement for Q4 is that Agent Relay must no longer rely on SQLite when running via Compose.
+
+Before creating the `docker-compose.yml` file, first check the database configuration in the source code:
+```
+grep -R "RELAY_DATABASE_URL\|DATABASE_URL\|sqlite\|postgres" -n \
+  main.py database.py storage.py pyproject.toml
+```
+
+```text
+database.py:22:    return os.getenv("RELAY_DATABASE_URL") or os.getenv("DATABASE_URL") or "sqlite:///./agent-relay.db"
+database.py:33:DATABASE_URL = _database_url()
+database.py:133:def _is_sqlite(url: str) -> bool:
+database.py:134:    return url.startswith("sqlite")
+database.py:138:if _is_sqlite(DATABASE_URL):
+database.py:140:    if DATABASE_URL in {"sqlite://", "sqlite:///:memory:"}:
+database.py:145:engine: Engine = create_engine(DATABASE_URL, **engine_kwargs)
+database.py:147:if _is_sqlite(DATABASE_URL):
+database.py:150:    def _sqlite_pragmas(dbapi_connection: Any, _connection_record: Any) -> None:
+database.py:246:    "DATABASE_URL",
+```
+
+So, Docker Compose can use RELAY_DATABASE_URL to point the Agent Relay to PostgreSQL.
+
+Before creating the Compose configuration, check the database dependencies in pyproject.toml:
+```
+grep -n -A20 -B5 "dependencies" pyproject.toml
+```
+
+We need to ensure that a PostgreSQL driver—such as `psycopg` or `psycopg2`—is available. If it is not already present, add the appropriate dependency.
+
+Also, run:
+```
+sed -n '1,180p' database.py
+```
+
+Focus on the section:
+```
+_database_url()
+create_engine(...)
+```
+
+Target connection string Compose
+
+Later the environment variables in the Agent Relay service will be in the form:
+
+```yaml
+environment: 
+RELAY_DATABASE_URL: postgresql+psycopg://agent_relay:agent_relay_password@postgres:5432/agent_relay
+```
+
+Pay attention to the hostname:
+```
+postgres
+```
+
+That is the PostgreSQL service name in Docker Compose, not localhost.
+
+Once the dependencies are verified, we will create:
+- postgres service
+- agent-relay service
+- named volume for PostgreSQL
+- PostgreSQL healthcheck
+- agent-relay dependency on a healthy PostgreSQL instance
+- Agent Relay port mapping (8000:8000)
+
+The PostgreSQL dependency is already available:
+```
+"psycopg[binary]>=3.3.5"
+```
+
+And database.py already supports PostgreSQL URLs via:
+```python
+RELAY_DATABASE_URL
+```
+
+However, there is an important note: comments in the source code indicate that the PostgreSQL implementation is a planned exercise. Additionally, the `immediate_transaction()` function likely still relies on a mechanism specific to SQLite. Before using Compose, check that section:
+
+```
+sed -n '180,280p' database.py
+```
+
+We need to ensure that the task claim code does not use SQLite SQL, such as:
+```SQL
+BEGIN IMMEDIATE
+```
+
+PostgreSQL does not support that syntax. If it is still used, Compose might start successfully, but the endpoint claim will fail.
+
+Run:
+```
+sed -n '180,280p' database.py
+```
+
+After that, we will determine whether simply creating a `docker-compose.yml` file is sufficient, or if minor changes are needed so that PostgreSQL transactions use row-level locking (`SELECT ... FOR UPDATE`) alongside standard transactions.
+
+Currently, immediate_transaction() always executes:
+
+connection.exec_driver_sql("BEGIN IMMEDIATE")
+
+That is only valid for SQLite. We need to branch the transaction logic:
+
+- SQLite → continue using BEGIN IMMEDIATE
+- PostgreSQL → use a standard SQLAlchemy transaction
+
+Change the immediate_transaction() function to:
+```
+@contextmanager
+def immediate_transaction() -> Generator[Session, None, None]:
+    """Run an atomic transaction for claims, recovery, and terminal actions.
+
+    SQLite uses BEGIN IMMEDIATE to serialize writers.
+    PostgreSQL uses the normal SQLAlchemy transaction and relies on
+    row-level locking in the storage layer.
+    """
+
+    if _is_sqlite(DATABASE_URL):
+        connection = engine.connect()
+        session = Session(bind=connection, expire_on_commit=False, autoflush=True)
+        try:
+            connection.exec_driver_sql("BEGIN IMMEDIATE")
+            yield session
+            session.flush()
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            session.close()
+            connection.close()
+    else:
+        with SessionLocal.begin() as session:
+            yield session
+```
+
+However, this change alone is not sufficient for PostgreSQL concurrency if the claim query in `storage.py` still does not use row locks. Check the claim section:
+
+```bash
+grep -n -A100 -B20 "claim" storage.py
+```
+
+Find the query that selects tasks with a 'queued' status. For PostgreSQL, the query needs to use:
+```bash
+.with_for_update(skip_locked=True)
+```
+
+Example pattern:
+```
+statement = (
+    select(Task)
+    .where(
+        Task.recipient_id == recipient_id,
+        Task.status == "queued",
+    )
+    .order_by(Task.created_at, Task.id)
+    .with_for_update(skip_locked=True)
+    .limit(1)
+)
+```
+
+For SQLite compatibility, `with_for_update(skip_locked=True)` can be called because SQLite will ignore that clause when generating the SQL.
+
+From storage.py, the claim query currently does not use row-level locking:
+```python
+select(Task)
+.where(Task.recipient_id == agent_id, Task.status == "queued")
+.order_by(Task.created_at, Task.id)
+.limit(1)
+```
+
+For PostgreSQL, change that section to:
+```
+task = db.scalar(
+    select(Task)
+    .where(
+        Task.recipient_id == agent_id,
+        Task.status == "queued",
+    )
+    .order_by(Task.created_at, Task.id)
+    .with_for_update(skip_locked=True)
+    .limit(1)
+)
+```
+
+So, the `claim_one()` function in the query section becomes:
+```
+def claim_one(agent_id: str, worker_id: str | None) -> dict[str, Any] | None:
+    with immediate_transaction() as db:
+        now = utcnow()
+        recover_expired_in_session(db, now)
+
+        task = db.scalar(
+            select(Task)
+            .where(
+                Task.recipient_id == agent_id,
+                Task.status == "queued",
+            )
+            .order_by(Task.created_at, Task.id)
+            .with_for_update(skip_locked=True)
+            .limit(1)
+        )
+
+        if task is None:
+            return None
+
+        if task.attempt_count >= MAX_ATTEMPTS:
+            task.status = "failed"
+            task.error = "attempts_exhausted"
+            task.finished_at = as_db_time(now)
+            return None
+
+        claim_token = new_secret("clm")
+        task.status = "processing"
+        task.attempt_count += 1
+        lease_expires = as_db_time(now + timedelta(seconds=LEASE_SECONDS))
+
+        db.add(
+            Attempt(
+                task_id=task.id,
+                attempt_number=task.attempt_count,
+                worker_id=worker_id,
+                claim_token_hash=secret_hash(claim_token),
+                claimed_at=as_db_time(now),
+                lease_expires_at=lease_expires,
+                finished_at=None,
+                outcome="processing",
+                terminal_action=None,
+                terminal_payload_hash=None,
+            )
+        )
+
+        db.flush()
+
+        return {
+            "task_id": task.id,
+            "from": task.sender_id,
+            "input": task.input,
+            "attempt": task.attempt_count,
+            "claim_token": claim_token,
+            "lease_expires_at": iso_time(lease_expires),
+        }
+```
+
+Then change immediate_transaction() in database.py to not run BEGIN IMMEDIATE on PostgreSQL:
+```python
+@contextmanager
+def immediate_transaction() -> Generator[Session, None, None]:
+    """Run an atomic transaction for task operations."""
+
+    if _is_sqlite(DATABASE_URL):
+        connection = engine.connect()
+        session = Session(bind=connection, expire_on_commit=False, autoflush=True)
+
+        try:
+            connection.exec_driver_sql("BEGIN IMMEDIATE")
+            yield session
+            session.flush()
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            session.close()
+            connection.close()
+    else:
+        with SessionLocal.begin() as session:
+            yield session
+```
+
+After making those two changes, run the local tests:
+```
+uv run pytest -q
+```
+5 passed, 2 warnings in 4.13s
+
+PostgreSQL-compatible changes no longer break SQLite tests:
+- BEGIN IMMEDIATE is still used for SQLite.
+- PostgreSQL will use regular SQLAlchemy transactions.
+- The claim query already uses with_for_update(skip_locked=True).
+- All five tests still passed.
+
+Next: create docker-compose.yml
+
+Create the following files in the project root:
+```
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agent-relay-postgres
+    environment:
+      POSTGRES_DB: agent_relay
+      POSTGRES_USER: agent_relay
+      POSTGRES_PASSWORD: agent_relay_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_relay -d agent_relay"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  agent-relay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: agent-relay:compose
+    container_name: agent-relay-api
+    environment:
+      RELAY_DATABASE_URL: postgresql+psycopg://agent_relay:agent_relay_password@postgres:5432/agent_relay
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+volumes:
+  postgres_data:
+```
+
+Run:
+```
+docker compose up --build
+```
+
+In another terminal, check:
+```
+curl http://localhost:8000/health
+
+curl http://localhost:8000/ready
+```
+
+Expected:
+```
+{"status":"ok"}
+
+{"status":"ready"}
+```
+
+Check running container and stop
+```
+dockse ps
+docker stop agent-relay
+```
+
+Restart docker compose:
+```
+docker compose down
+docker compose up -d
+```
+
+Then, verify the database used by the container:
+```
+docker compose exec agent-relay sh -lc 'echo "$RELAY_DATABASE_URL"'
+```
+postgresql+psycopg://agent_relay:agent_relay_password@postgres:5432/agent_relay
+
+Database Hostname : postgres
+
+This proves that the Agent Relay is running in Compose and connecting to PostgreSQL via the Compose service name.
+
 
 
