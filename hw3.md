@@ -346,7 +346,7 @@ def test_acceptance_task_flow_sender_sees_completed():
   ```
 
 Question 2 is complete:
-
+```text
 ✅ Two agents successfully registered.
 ✅ Sender created a task via HTTP API.
 ✅ Recipient claimed the task via HTTP API.
@@ -355,7 +355,7 @@ Question 2 is complete:
 ✅ "HELLO AGENT RELAY" output is stored.
 ✅ Acceptance flow automated as an integration test.
 ✅ Test uses the API and an actual SQLite database for the test environment.
-
+```
 ### Answer to Question 2: completed
 
           
