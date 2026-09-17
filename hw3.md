@@ -478,9 +478,12 @@ docker compose up --build
 Run the integration test from Question 2 against the Compose stack and check the result in the dashboard. Confirm that the app stores its data in PostgreSQL.
 
 Which hostname should the API use to connect to the postgres service in Docker Compose?
-• localhost
-• postgres
-• host.docker.internal
-• 0.0.0.0
+- localhost
+- postgres
+- host.docker.internal
+- 0.0.0.0
+
+Solution:
+
 
 
