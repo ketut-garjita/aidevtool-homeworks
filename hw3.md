@@ -359,7 +359,7 @@ Question 2 is complete:
 ### Answer to Question 2: completed
 
           
-### Question 3: Containerization
+## Question 3: Containerization
 
 Ask your coding agent to create a Dockerfile for Agent Relay. Build the image as agent-relay:local and run it with the API port published to your machine.
 
@@ -463,5 +463,24 @@ localhost:8000
     ↓
 /health + /ready
 ```
+### Answer to Question 3: -p
+
+
+## Question 4: Docker Compose and PostgreSQL
+
+Ask your coding agent to replace SQLite with PostgreSQL and create a compose.yaml that runs Agent Relay and PostgreSQL together. Name the database service postgres.
+
+Start the stack:
+```
+docker compose up --build
+```
+
+Run the integration test from Question 2 against the Compose stack and check the result in the dashboard. Confirm that the app stores its data in PostgreSQL.
+
+Which hostname should the API use to connect to the postgres service in Docker Compose?
+• localhost
+• postgres
+• host.docker.internal
+• 0.0.0.0
 
 
