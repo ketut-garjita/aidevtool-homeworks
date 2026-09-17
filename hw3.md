@@ -415,6 +415,7 @@ If both succeed, we have proven:
 source code → Docker image → container → published port → HTTP API
 
 | Validation | Results |
+------------------------
 | docker build | ✅ Success |
 | Image agent-relay:local | ✅ 361 MB |
 | Container port 8000 published | ✅ |
