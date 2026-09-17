@@ -24,3 +24,12 @@ My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw2.m
 My Project: [https://github.com/ketut-garjita/QueueBite](https://github.com/ketut-garjita/QueueBite)
 
 ---
+**Module 3: Containerize and Deploy**
+
+Homework: [https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/03-deployment/homework.md](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/03-deployment/homework.md)
+
+My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw3.md](https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw3.md))
+
+My Project:
+
+---
