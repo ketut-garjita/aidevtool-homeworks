@@ -874,10 +874,10 @@ Create manifests in k8s/ for Agent Relay and PostgreSQL, including Services, per
 Check that the pods are ready. Open the dashboard through port forwarding and verify the task flow from Question 2.
 
 Which Kubernetes resource keeps the requested number of application replicas running and manages updates?
-- Service
-- ConfigMap
-- Deployment
-- Secret
+`- Service`
+`- ConfigMap`
+`- Deployment`
+`- Secret`
 
 Solution:
 
