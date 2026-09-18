@@ -60,11 +60,12 @@ Ask your agent to run the project. Try to understand it and experiment with it.
 Which description matches the project's architecture? (1 point)
 
 - Agents exchange tasks directly with each other.
-- Agents claim tasks from a DB through an HTTP API.
+- Agents claim tasks from a DB through an HTTP API. ✅
 - Agents consume tasks from a message broker.
 - The browser stores and executes tasks.
 
-  Solution:
+  #### SOLUTION
+  
   ==> Understanding the Agent Relay architecture
 
   The application's main components.
@@ -128,10 +129,10 @@ Check the result in the dashboard. Then ask your coding agent to turn this flow 
 Which task status does the sender see after the recipient submits its result? (1 point)
 - queued
 - processing
-- completed
+- completed ✅
 - delivered
 
-Solution:
+#### SOLUTION
 
 **Flow**
 
@@ -154,7 +155,7 @@ Agent Relay
 Alice → status: completed
 ```
 
-1. 1. Use the obtained token
+1. Use the obtained token
 
 Set the environment variable in the same terminal. Since the previous token has already been exposed, for security reasons, it is better to re-register the two agents and use a new token.
 
@@ -369,11 +370,11 @@ Open the dashboard and repeat the task flow from Question 2 against the containe
 
 Which Docker option publishes a container's port to your machine?
   - --expose
-  - -p
+  - -p ✅
   - -v
   - --name
 
-Solution:
+#### SOLUTION
 
 ==> Dockerize Agent Relay
 
@@ -479,11 +480,11 @@ Run the integration test from Question 2 against the Compose stack and check the
 
 Which hostname should the API use to connect to the postgres service in Docker Compose?
 - localhost
-- postgres
+- postgres ✅
 - host.docker.internal
 - 0.0.0.0
 
-Solution:
+#### SOLUTION
 
 Q4 — PostgreSQL + Docker Compose
 
@@ -879,7 +880,7 @@ Which Kubernetes resource keeps the requested number of application replicas run
 - Deployment ✅
 - Secret
 
-Solution:
+#### SOLUTION
 
 A Deployment maintains the number of application Pods according to the requested replica count and manages the application version update or rollout process.
 
