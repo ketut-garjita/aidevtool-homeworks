@@ -51,6 +51,7 @@ cat README.md
 cat SPEC.md
 ```
 
+---
 ## Question 1: Understand the project
 
 Fork the Agent Relay starter repository from here.
@@ -359,7 +360,7 @@ Question 2 is complete:
 ```
 ### Answer to Question 2: completed
 
-          
+---          
 ## Question 3: Containerization
 
 Ask your coding agent to create a Dockerfile for Agent Relay. Build the image as agent-relay:local and run it with the API port published to your machine.
@@ -466,7 +467,7 @@ localhost:8000
 ```
 ### Answer to Question 3: -p
 
-
+---
 ## Question 4: Docker Compose and PostgreSQL
 
 Ask your coding agent to replace SQLite with PostgreSQL and create a compose.yaml that runs Agent Relay and PostgreSQL together. Name the database service postgres.
@@ -866,6 +867,7 @@ This proves that the Agent Relay is running in Compose and connecting to Postgre
 
 ### Answer to Question 4: postgres
 
+---
 ## Question 5: Deploy to Kubernetes
 
 Ask your coding agent to install kind and kubectl if needed, then create a local Kubernetes cluster.
@@ -1336,4 +1338,6 @@ localhost:8000
    /health ✅
    /docs   ✅
 ```
+
+---
 
