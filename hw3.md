@@ -874,11 +874,465 @@ Create manifests in k8s/ for Agent Relay and PostgreSQL, including Services, per
 Check that the pods are ready. Open the dashboard through port forwarding and verify the task flow from Question 2.
 
 Which Kubernetes resource keeps the requested number of application replicas running and manages updates?
-`- Service`
-`- ConfigMap`
-`- Deployment`
-`- Secret`
+- Service
+- ConfigMap
+- Deployment ✅
+- Secret
 
 Solution:
 
+A Deployment maintains the number of application Pods according to the requested replica count and manages the application version update or rollout process.
+
+In practice, we will follow this sequence:
+```text
+Docker image
+    │
+    ▼
+kind cluster
+    │
+    ├── PostgreSQL
+    │    ├── PersistentVolumeClaim
+    │    ├── Deployment
+    │    └── Service
+    │
+    └── Agent Relay
+         ├── Deployment
+         ├── Service
+         └── readiness probe
+              │
+              ▼
+         port-forward :8000
+              │
+              ▼
+          Dashboard
+              │
+              ▼
+       Q2 task flow
+```
+
+Since the homework instructions explicitly call for `kind` and `kubectl`, we start with a local Kubernetes environment.
+
+1. Check if `kind` and `kubectl` are available
+
+Run:
+```bash
+kind version
+kubectl version --client
+docker version
+```
+
+NOTES:
+
+If either `kind` or `kubectl` is not available, do not install them manually yet. Send the output of these three commands.
+
+After that, we will:
+1. install missing components,
+2. create the agent-relay cluster,
+3. create K8s manifests,
+4. load the local agent-relay image into kind,
+5. deploy PostgreSQL + PVC,
+6. deploy Agent Relay + readiness check,
+7. ensure all Pods are Ready,
+8. run kubectl port-forward for the dashboard,
+9. rerun the Alice → Uppercase flow from Question 2.
+
+The environment is ready. No need to install anything:
+```text
+• kind v0.27.0-alpha ✅
+• kubectl v1.32.1 ✅
+• Docker Engine 29.1.3 ✅
+```
+Now, create a local Kubernetes cluster.
+
+1. Create a kind cluster
+
+I recommend a specific cluster name for the homework:
+```Bash
+kind create cluster --name agent-relay
+```
+
+Once finished:
+```Bash
+kubectl cluster-info --context kind-agent-relay
+```
+
+Then:
+```Bash
+kubectl get nodes
+```
+
+Output:
+```text
+NAME                         STATUS   ROLES           AGE   VERSION
+agent-relay-control-plane    Ready    control-plane   92s   v1.32.0
+```
+
+2. Ensure the correct context is being used
+```Bash
+kubectl config current-context
+```
+
+It should be:
+```
+kind-agent-relay
+```
+
+Then:
+```Bash
+kubectl get pods -A
+```
+
+You should see default Kubernetes pods such as coredns, etcd, kube-apiserver, etc.
+```text
+NAMESPACE            NAME                                                READY   STATUS    RESTARTS   AGE
+kube-system          coredns-668d6bf9bc-52djr                            1/1     Running   0          5m26s
+kube-system          coredns-668d6bf9bc-9sf5k                            1/1     Running   0          5m26s
+kube-system          etcd-agent-relay-control-plane                      1/1     Running   0          5m30s
+kube-system          kindnet-glwb5                                       1/1     Running   0          5m26s
+kube-system          kube-apiserver-agent-relay-control-plane            1/1     Running   0          5m30s
+kube-system          kube-controller-manager-agent-relay-control-plane   1/1     Running   0          5m30s
+kube-system          kube-proxy-nvdqd                                    1/1     Running   0          5m26s
+kube-system          kube-scheduler-agent-relay-control-plane            1/1     Running   0          5m34s
+local-path-storage   local-path-provisioner-58cc7856b6-jwgf4             1/1     Running   0          5m25s
+```
+
+Let's move on to the main part of Q5: creating Kubernetes manifests for PostgreSQL + Agent Relay.
+
+1. Create the k8s/ structure
+
+From the repository:
+```Bash
+cd ~/projects/zoomcamp/myprojects/agent-relay
+mkdir -p k8s
+```
+
+We will create:
+```text
+k8s/
+├── postgres-secret.yaml
+├── postgres-pvc.yaml
+├── postgres-deployment.yaml
+├── postgres-service.yaml
+├── agent-relay-deployment.yaml
+└── agent-relay-service.yaml
+```
+
+2. PostgreSQL Secrets
+```Bash
+cat > k8s/postgres-secret.yaml <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+type: Opaque
+stringData:
+  POSTGRES_DB: agent_relay
+  POSTGRES_USER: agent_relay
+  POSTGRES_PASSWORD: agent_relay_password
+EOF
+```
+
+3. PostgreSQL persistent storage
+```Bash
+cat > k8s/postgres-pvc.yaml <<'EOF'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+specs:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+```
+
+kind already has a local-path-provisioner, as seen from your output:
+```
+local-path-storage local-path-provisioner-... 1/1 Running
+```
+
+So this PVC should automatically get storage.
+
+4. PostgreSQL Deployment
+
+```
+cat > k8s/postgres-deployment.yaml <<'EOF'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 10
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+EOF
+```
+
+5. PostgreSQL Service
+
+This service is important because the Agent Relay will subsequently access the database using the hostname:
+```text
+posrgres
+```
+
+```
+cat > k8s/postgres-service.yaml <<'EOF'
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
+EOF
+```
+
+6. Agent Relay Deployment
+
+Use the local image you successfully built earlier:
+```text
+agent-relay:local
+```
+
+Manifest:
+```
+cat > k8s/agent-relay-deployment.yaml <<'EOF'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent-relay
+  template:
+    metadata:
+      labels:
+        app: agent-relay
+    spec:
+      containers:
+        - name: agent-relay
+          image: agent-relay:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: RELAY_DATABASE_URL
+              value: postgresql+psycopg://agent_relay:agent_relay_password@postgres:5432/agent_relay
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+EOF
+```
+
+7. Agent Relay Service
+
+```Bash
+cat > k8s/agent-relay-service.yaml <<'EOF'
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-relay
+spec:
+  selector:
+    app: agent-relay
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
+EOF
+```
+
+8. Ensure the files exist
+
+Run:
+```Bash
+ls -la k8s/
+```
+You should see:
+```text
+agent-relay-deployment.yaml
+agent-relay-service.yaml
+postgres-deployment.yaml
+postgres-pvc.yaml
+postgres-secret.yaml
+postgres-service.yaml
+```
+
+Let's move on to loading the image into Kind.
+
+1. Load the `agent-relay:local` image into the cluster
+
+Since the image was built on the Docker host, you need to explicitly load it into `kind`:
+```Bash
+kind load docker-image agent-relay:local --name agent-relay
+```
+
+Then verify:
+```Bash
+docker exec -it agent-relay-control-plane crictl images | grep agent-relay
+```
+
+You should see `agent-relay` with the `local` tag.
+```text
+docker.io/library/agent-relay                   local                224452bd13f26       371MB
+```
+
+2. Deploy all manifests
+
+If the image has been entered, run:
+```Bash
+kubectl apply -f k8s/
+```
+```text
+secret/postgres-secret created
+persistentvolumeclaim/postgres-pvc created
+deployment.apps/postgres created
+service/postgres created
+deployment.apps/agent-relay created
+service/agent-relay created
+```
+
+3. Check resources
+
+Run:
+```Bash
+kubectl get pods -o wide
+```
+
+then:
+```Bash
+kubectl get svc
+kubectl get pvc
+```
+
+```text
+(base) dataeng@linuxmint-vm:~/projects/zoomcamp/myprojects/agent-relay$ kubectl get pods -o wide
+NAME                           READY   STATUS    RESTARTS      AGE   IP           NODE                        NOMINATED NODE   READINESS GATES
+agent-relay-7b69996c7f-ft47l   1/1     Running   7 (10m ago)   17m   10.244.0.5   agent-relay-control-plane   <none>           <none>
+postgres-d84f86fc6-pbr7f       1/1     Running   0             17m   10.244.0.7   agent-relay-control-plane   <none>           <none>
+(base) dataeng@linuxmint-vm:~/projects/zoomcamp/myprojects/agent-relay$ kubectl get svc
+NAME          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+agent-relay   ClusterIP   10.96.2.221    <none>        8000/TCP   17m
+kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP    55m
+postgres      ClusterIP   10.96.60.167   <none>        5432/TCP   17m
+(base) dataeng@linuxmint-vm:~/projects/zoomcamp/myprojects/agent-relay$ kubectl get pvc
+NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+postgres-pvc   Bound    pvc-187951f3-29f3-4454-83eb-d015047aab1a   1Gi        RWO            standard       <unset>                 11m
+```
+
+4. Wait for the Agent Relay to be fully ready
+
+Use:
+```Bash
+kubectl wait --for=condition=ready pod \
+  -l app=agent-relay \
+  --timeout=120s
+```
+
+If successful:
+```Bash
+pod/agent-relay-xxxxxxxxxx-xxxxx condition met
+```
+
+Then:
+```Bash
+kubectl get pods
+```
+
+Two main components:
+```
+                    Kubernetes / kind
+                           │
+             ┌─────────────┴─────────────┐
+             │                           │
+       PostgreSQL                    Agent Relay
+             │                           │
+     ┌───────┴───────┐                   │
+     │               │                   │
+   Secret           PVC                  │
+     │               │                   │
+     └───────┬───────┘                   │
+             │                           │
+        PostgreSQL Pod ◄────── Service ──┘
+             │
+          :5432
+
+Agent Relay Pod
+      │
+   :8000
+      │
+Service agent-relay
+      │
+ port-forward
+      │
+localhost:8000
+      │
+   /health ✅
+   /docs   ✅
+```
 
