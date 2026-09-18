@@ -1339,5 +1339,85 @@ localhost:8000
    /docs   ✅
 ```
 
+Flows
+
+```text
+Docker image
+    ↓
+kind load docker-image
+    ↓
+Node (kind)
+    ↓
+Pod
+    ↓
+Container
+    ↓
+FastAPI :8000
+    ↓
+Service (ClusterIP)
+    ↓
+Endpoint
+    ↓
+Port-forward
+    ↓
+Browser / curl
+```
+
+Relay Agent last status:
+
+```
+| Komponen                      | Status          |
+| ----------------------------- | ----------------|
+| Image → kind                  | ✅ Functional  |
+| kind → Pod                    | ✅             |
+| Pod → FastAPI                 | ✅             |
+| PostgreSQL Pod                | ✅             |
+| PostgreSQL Service            | ✅             |
+| Service → Agent Relay         | ✅             |
+| Port-forward → Service        | ✅             |
+| `/docs`                       | ✅             |
+| `/health`                     | ✅             |
+| Startup dependency PostgreSQL | ✅             |
+| Current application           | ✅ Healthy     |
+
+```
+
+$ docker exec agent-relay-control-plane crictl images
+```text
+IMAGE                                           TAG                  IMAGE ID            SIZE
+docker.io/kindest/kindnetd                      v20241212-9f82dd49   d300845f67aeb       39MB
+docker.io/kindest/local-path-helper             v20241212-8ac705d0   baa0d31514ee5       3.08MB
+docker.io/kindest/local-path-provisioner        v20241212-8ac705d0   04b7d0b91e7e5       22.5MB
+docker.io/library/agent-relay                   local                224452bd13f26       371MB
+docker.io/library/postgres                      16-alpine            81bd698b4594e       116MB
+registry.k8s.io/coredns/coredns                 v1.11.3              c69fa2e9cbf5f       18.6MB
+registry.k8s.io/etcd                            3.5.16-0             a9e7e6b294baf       57.7MB
+registry.k8s.io/kube-apiserver-amd64            v1.32.0              73afaf82c9cc3       98MB
+registry.k8s.io/kube-apiserver                  v1.32.0              73afaf82c9cc3       98MB
+registry.k8s.io/kube-controller-manager-amd64   v1.32.0              f3548c6ff8a1e       90.8MB
+registry.k8s.io/kube-controller-manager         v1.32.0              f3548c6ff8a1e       90.8MB
+registry.k8s.io/kube-proxy-amd64                v1.32.0              aa194712e698a       95.3MB
+registry.k8s.io/kube-proxy                      v1.32.0              aa194712e698a       95.3MB
+registry.k8s.io/kube-scheduler-amd64            v1.32.0              faaacead470c4       70.6MB
+registry.k8s.io/kube-scheduler                  v1.32.0              faaacead470c4       70.6MB
+registry.k8s.io/pause                           3.10                 873ed75102791       320kB
+```
+
 ---
+### Question 6: CI/CD
+
+Ask your coding agent to create .github/workflows/ci.yml that runs the starter's tests and your integration test against PostgreSQL, builds a new Docker image, and deploys it to your kind cluster only if the tests pass.
+
+Run the workflow locally with act. Ask your agent to configure access to Docker and the kind cluster, including loading the new image into kind. Use a unique image tag for each version and wait for the rollout to finish.
+
+Change the dashboard heading to Agent Relay v2 and run the workflow again. Verify that the tests pass and the new heading appears in the deployed dashboard.
+
+What should happen if a test fails in this workflow?
+- Deploy the new version and report the failure.
+- Keep the existing version running and stop the deployment. ✅
+- Delete the existing deployment.
+- Deploy the previous image with the new tag.
+
+#### SOLUTION
+
 
