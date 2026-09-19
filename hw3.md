@@ -71,8 +71,8 @@ Which description matches the project's architecture? (1 point)
 
   The application's main components.
 
-  <img width="1655" height="950" alt="image" src="https://github.com/user-attachments/assets/ea5e3bfc-db86-4c1f-8ece-9af1f12ea16e" />
-
+  ![agent-relay-local-architecture](assets/agent-relay-local-architecture.png)
+  
   The application uses SQLite for local storage and FastAPI as the communication intermediary.
   
   Workers do not retrieve tasks directly from the sending agent, and the starter project does not use an external message broker.
