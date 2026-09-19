@@ -12,6 +12,8 @@ Homework: [https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/coho
 
 My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw1.md](https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw1.md)
 
+My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/homework/hw1](https://courses.datatalks.club/ai-dev-tools-2026/homework/hw1)
+
 My Project: [https://github.com/ketut-garjita/aidevtools-module1](https://github.com/ketut-garjita/aidevtools-module1)
 
 ---
@@ -20,6 +22,8 @@ My Project: [https://github.com/ketut-garjita/aidevtools-module1](https://github
 Homework: [https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/02-development/homework.md](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/02-development/homework.md)
 
 My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw2.md](https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw2.md))
+
+My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/homework/hw2](https://courses.datatalks.club/ai-dev-tools-2026/homework/hw2)
 
 My Project: [https://github.com/ketut-garjita/QueueBite](https://github.com/ketut-garjita/QueueBite)
 
@@ -30,6 +34,8 @@ Homework: [https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/coho
 
 My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw3.md](https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw3.md))
 
-My Project:
+My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/homework/hw3](https://courses.datatalks.club/ai-dev-tools-2026/homework/hw3)
+
+My Project: [https://github.com/ketut-garjita/agent-relay](https://github.com/ketut-garjita/agent-relay)
 
 ---
