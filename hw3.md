@@ -71,7 +71,7 @@ Which description matches the project's architecture? (1 point)
 
   The application's main components.
 
-  <img width="656" height="379" alt="image" src="https://github.com/user-attachments/assets/ce9005d5-d3b0-4fa5-8998-b1821affefa0" />
+  <img width="1655" height="950" alt="image" src="https://github.com/user-attachments/assets/ea5e3bfc-db86-4c1f-8ece-9af1f12ea16e" />
 
   The application uses SQLite for local storage and FastAPI as the communication intermediary.
   
