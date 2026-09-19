@@ -229,8 +229,7 @@ Save the token:
 export CLAIM_TOKEN=$(echo "$claim" | python3 -c 'import sys,json; print(json.load(sys.stdin)["claim_token"])')
 echo "Claim received."
 ```
-
-Perhatikan bahwa pada titik ini task seharusnya berada pada status:
+Note that at this point, the task should be in the following status:
 ```
 processing
 ```
