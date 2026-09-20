@@ -1494,6 +1494,21 @@ NO   YES
 │    │
 └────┴── failure stops here
 ```
+Kondisi Kubernetes sudah siap
+
+Resource Q5 sekarang terlihat benar:
+```text
+Deployment
+├── agent-relay   1/1
+└── postgres      1/1
+
+Service
+├── agent-relay   8000
+└── postgres      5432
+
+PVC
+└── postgres-pvc  Bound
+```
 
 So, we can proceed to create the Q6 workflow.
 
@@ -1621,4 +1636,83 @@ ${IMAGE_NAME}:${IMAGE_TAG} \
 run: | 
 kubectl apply -f k8s/ 
 
-- name: Update Kubernetes deployment
+- name: Update Kubernetes deployment 
+run: | 
+kubectl set image deployment/agent-relay \ 
+agent-relay=${IMAGE_NAME}:${IMAGE_TAG} 
+
+- name: Wait for rollout 
+run: | 
+kubectl rollout status deployment/agent-relay\ 
+--timeout=120s 
+
+- name: Test dashboard 
+run: | 
+kubectl port-forward \
+service/agent-relay \
+18000:8000 > /tmp/port-forward.log 2>&1 &
+
+PF_PID=$! 
+trap 'kill $PF_PID' EXIT
+
+for i in {1..30}; do
+if curl -fsS http://127.0.0.1:18000/ > /tmp/dashboard.html; then
+break
+fi
+sleep 2
+done
+
+grep -q "Agent Relay v2" /tmp/dashboard.html
+
+echo "Dashboard test passed"
+```
+
+Run the test job first
+
+We don't need to run the deployment immediately. Run only the test job:
+```Bash
+act push -j test \
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+```
+This tests the most critical parts first:
+```text
+PostgreSQL
+↓
+RELAY_DATABASE_URL
+↓
+uv sync
+↓
+pytest
+```
+
+If successful, the final output should show:
+```text
+✓ test
+```
+
+and pytest should show:
+```text
+5 passed
+```
+
+3. After the test succeeds
+
+Then run the full workflow with host access:
+```Bash
+act push \
+-P ubuntu-latest=catthehacker/ubuntu:act-latest \
+--container-options "-v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.kube:/root/.kube:ro --network host"
+```
+
+then:
+```Bash
+act -j build-and-deploy
+```
+
+```
+kubectl port-forward service/agent-relay 18000:8000 &
+sleep 5
+curl -s http://127.0.0.1:18000/ | head -50
+```
+
+Open browser: http://127.0.0.1:18000/
