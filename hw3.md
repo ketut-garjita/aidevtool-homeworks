@@ -1512,7 +1512,7 @@ PVC
 
 So, we can proceed to create the Q6 workflow.
 
-1. Ensure the workflow directory exists:
+Ensure the workflow directory exists:
 ```Bash
 mkdir -p .github/workflows
 ```
@@ -1528,7 +1528,8 @@ The Kubernetes Deployment is updated with that tag.
 kubectl rollout status waiting for deployment to complete.
 ```
 
-ci-cd.yml
+Make ci-cd.yml:
+
 ```
 name: CI/CD
 
