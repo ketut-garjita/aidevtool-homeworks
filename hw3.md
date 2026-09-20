@@ -1419,4 +1419,206 @@ What should happen if a test fails in this workflow?
 
 #### SOLUTION
 
+To complete the Q6 exercise, we need to create a workflow that:
+```
+Runs starter tests + integration tests.
+Uses PostgreSQL for integration tests.
+Builds a Docker image if all tests pass.
+Assigns a unique tag to each build.
+Loads the new image into kind.
+Deploys/updates the Kubernetes Deployment.
+Waits for the rollout to complete.
+Tests the dashboard.
+Changes the heading to "Agent Relay v2".
+Runs the workflow again and verifies that the new version is actually deployed.
+```
 
+Check the repository status:
+```Bash
+cd ~/projects/zoomcamp/myprojects/agent-relay
+
+git status --short
+```
+Then check if `act` is available:
+```Bash
+/usr/local/bin/act --version
+```
+And ensure the `kind` cluster is running:
+```Bash
+kubectl get nodes
+kubectl get pods
+```
+
+Verify the current state of the application:
+
+Since Q6 involves deploying to an already running cluster:
+```Bash
+kubectl get deployment
+kubectl get svc
+kubectl get pvc
+```
+And check the image currently in use:
+```Bash
+kubectl get deployment agent-relay \
+-o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+```
+
+After verifying `act`, we will create a workflow following this pattern:
+```text
+GitHub Actions / act
+│
+▼
+PostgreSQL service
+│
+▼
+pytest + integration test
+│
+PASS? 
+│   │
+NO   YES
+│    │
+│    ▼
+│ Docker build
+│    │
+│    ▼
+│ unique image tag
+│    │
+│    ▼
+│ kind load docker-image
+│    │
+│    ▼
+│ kubectl apply
+│    │
+│    ▼
+│ rollout status
+│    │
+└────┴── failure stops here
+```
+
+So, we can proceed to create the Q6 workflow.
+
+1. Ensure the workflow directory exists:
+```Bash
+mkdir -p .github/workflows
+```
+
+The initial workflow is simple but meets the homework requirements:
+```text
+PostgreSQL runs as a service container.
+pytest uses PostgreSQL.
+The Docker image is built only after tests pass.
+The image is tagged using the commit SHA.
+The image is loaded into kind.
+The Kubernetes Deployment is updated with that tag.
+kubectl rollout status waiting for deployment to complete.
+```
+
+ci-cd.yml
+```
+name: CI/CD
+
+on: 
+push: 
+workflow_dispatch:
+
+jobs: 
+test: 
+runs-on: ubuntu-latest 
+
+services: 
+postgres: 
+image: postgres:16-alpine 
+env: 
+POSTGRES_USER: agent_relay 
+POSTGRES_PASSWORD: test_password 
+POSTGRES_DB: agent_relay 
+ports: 
+- 5432:5432 
+options: >- 
+--health-cmd "pg_isready -U agent_relay -d agent_relay" 
+--health-interval 5s 
+--health-timeout 5s 
+--health-retries 10 
+
+env: 
+RELAY_DATABASE_URL: postgresql+psycopg://agent_relay:test_password@localhost:5432/agent_relay 
+
+steps: 
+- name: Checkout 
+uses: actions/checkout@v4 
+
+- name: Set up Python 
+uses: actions/setup-python@v5 
+with: 
+python-version: "3.11" 
+
+- name: Install uv 
+uses: astral-sh/setup-uv@v5 
+
+- name: Install dependencies 
+run: uv sync --frozen 
+
+- name: Run tests 
+run: uv run pytest -q 
+
+build-and-deploy: 
+runs-on: ubuntu-latest 
+needs: test 
+
+env: 
+IMAGE_NAME: agent-relay 
+IMAGE_TAG: ${{ github.sha }} 
+KIND_CLUSTER_NAME: kind 
+
+steps: 
+- name: Checkout 
+uses: actions/checkout@v4 
+
+- name: Build Docker image 
+run: | 
+docker build\ 
+-t ${IMAGE_NAME}:${IMAGE_TAG} \ 
+. 
+
+- name: Install kind and kubectl 
+run: | 
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.29.0/kind-linux-amd64 
+chmod +x ./kind 
+sudo mv ./kind /usr/local/bin/kind 
+
+curl -LO "https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl" 
+chmod +x kubectl 
+sudo mv kubectl /usr/local/bin/kubectl 
+
+kind version 
+kubectl version --client 
+
+- name: Create kind cluster (if not exists) 
+run: | 
+if kind get clusters | grep -q "^${KIND_CLUSTER_NAME}$"; then 
+if [ "$(docker inspect -f '{{.State.Running}}' ${KIND_CLUSTER_NAME}-control-plane 2>/dev/null)" = "true" ]; then 
+echo "Cluster '${KIND_CLUSTER_NAME}' already exists and is running, skip creation." 
+else 
+echo "Cluster '${KIND_CLUSTER_NAME}' is registered but the container is not running, delete it then recreate it..." 
+kind delete cluster --name ${KIND_CLUSTER_NAME} 
+kind create cluster --name ${KIND_CLUSTER_NAME} 
+fi 
+else 
+kind create cluster --name ${KIND_CLUSTER_NAME} 
+fi 
+
+- name: Export kubeconfig 
+run: | 
+kind export kubeconfig --name ${KIND_CLUSTER_NAME} 
+
+- name: Load image into kind 
+run: | 
+kind load docker-image\ 
+${IMAGE_NAME}:${IMAGE_TAG} \ 
+--name ${KIND_CLUSTER_NAME} 
+
+- name: Apply Kubernetes manifests 
+run: | 
+kubectl apply -f k8s/ 
+
+- name: Update Kubernetes deployment
