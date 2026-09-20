@@ -1710,6 +1710,8 @@ docker compose down
 docker compose up -d --build
 ```
 
+Open browser: http://127.0.0.1:18000/
+
 Run the test job first
 
 We don't need to run the deployment immediately. Run only the test job:
@@ -1751,11 +1753,3 @@ then:
 ```Bash
 act -j build-and-deploy
 ```
-
-```
-kubectl port-forward service/agent-relay 18000:8000 &
-sleep 5
-curl -s http://127.0.0.1:18000/ | head -50
-```
-
-Open browser: http://127.0.0.1:18000/
