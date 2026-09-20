@@ -1753,3 +1753,13 @@ then:
 ```Bash
 act -j build-and-deploy
 ```
+
+Push to GitHub
+```Bash
+git status
+git add .
+git commit -m "Add CI, Docker, and Kubernetes deployment"
+git push
+GitHub Username: _________
+GitHub Password: _________
+```
