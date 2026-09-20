@@ -491,21 +491,21 @@ Q4 — PostgreSQL + Docker Compose
 Now we move on to a more important step: replacing the SQLite database with PostgreSQL and running Agent Relay alongside PostgreSQL using Docker Compose.
 
 The target architecture is as follows:
-
+```text
 ┌──────────────────────┐
-│     agent-relay       │
-│      FastAPI          │
-│       :8000           │
+│     agent-relay          │
+│      FastAPI             │
+│       :8000              │
 └──────────┬───────────┘
-│
-PostgreSQL
-postgres:5432
-│
+             │
+         PostgreSQL
+        postgres:5432
+             │
 ┌──────────▼───────────┐
-│     persistent        │
-│       volume          │
+│     persistent           │
+│       volume             │
 └──────────────────────┘
-
+```
 The key requirement for Q4 is that Agent Relay must no longer rely on SQLite when running via Compose.
 
 Before creating the `docker-compose.yml` file, first check the database configuration in the source code:
