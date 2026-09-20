@@ -1667,6 +1667,48 @@ grep -q "Agent Relay v2" /tmp/dashboard.html
 echo "Dashboard test passed"
 ```
 
+docker-compose.yml
+```Bash
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agent-relay-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  agent-relay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: agent-relay:compose
+    container_name: agent-relay-api
+    environment:
+      RELAY_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
+```
+
+Re-buidl agent-relay-api container with host port 18000:
+```Bash
+docker compose down
+docker compose up -d --build
+```
+
 Run the test job first
 
 We don't need to run the deployment immediately. Run only the test job:
@@ -1695,7 +1737,7 @@ and pytest should show:
 5 passed
 ```
 
-3. After the test succeeds
+After the test succeeds
 
 Then run the full workflow with host access:
 ```Bash
