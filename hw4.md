@@ -169,7 +169,7 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
 
 - build the telemetry stack
   ```text
-                      ┌──────────────┐
+                    ┌──────────────┐
                     │ Order Tracker│
                     │   FastAPI    │
                     └──────┬───────┘
