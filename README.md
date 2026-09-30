@@ -40,7 +40,7 @@ My Project: [https://github.com/ketut-garjita/agent-relay](https://github.com/ke
 
 ---
 ---
-**Module 3: Containerize and Deploy**
+**Module 4: DevOps and Observability for AI-Built Apps**
 
 Homework: [https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/04-devops/homework.md](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/04-devops/homework.md)
 
@@ -48,4 +48,4 @@ My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw3.m
 
 My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/homework/hw3](https://courses.datatalks.club/ai-dev-tools-2026/homework/hw4)
 
-My Project: [https://github.com/ketut-garjita/agent-relay](https://github.com/ketut-garjita/agent-relay)
+My Project: 
