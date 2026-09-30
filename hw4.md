@@ -222,67 +222,67 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
 
 - Modify Compose
 
-Add:
-
-  ```text
-    otel-collector
-    prometheus
-    loki
-    tempo
-    grafana
+  Add:
+  
+    ```text
+      otel-collector
+      prometheus
+      loki
+      tempo
+      grafana
+    ```
+  
+  The application should send:
+  
+    ```text
+    app
+     │
+     ├── metrics ──┐
+     ├── logs ─────┼──> OTEL Collector
+     └── traces ───┘
+    ```
+  
+  The Collector then routes them:
   ```
-
-The application should send:
-
-  ```text
-  app
-   │
-   ├── metrics ──┐
-   ├── logs ─────┼──> OTEL Collector
-   └── traces ───┘
+  metrics → Prometheus
+  logs    → Loki
+  traces  → Tempo
   ```
-
-The Collector then routes them:
-```
-metrics → Prometheus
-logs    → Loki
-traces  → Tempo
-```
-
-Grafana gets the three data sources.
-
-Rebuild containers
-```bash
-docker compose config
-docker compose up --build -d --wait
-```
-Then check:
-```bash
-docker compose ps
-```
-and:
-```bash
-curl http://localhost:8000/healthz
-```
-Grafana will be available at:
-```text
-http://localhost:3000
-```
-with the default credentials from the Compose configuration:
-```text
-username: admin
-password: admin
-```
-```bash
-curl -i http://localhost:8000/api/orders/standard-1002
-```
-```text
-HTTP/1.1 404 Not Found ✅
-date: Wed, 30 Sep 2026 11:29:16 GMT
-server: uvicorn
-content-length: 28
-content-type: application/json
-```
+  
+  Grafana gets the three data sources.
+  
+  Rebuild containers
+  ```bash
+  docker compose config
+  docker compose up --build -d --wait
+  ```
+  Then check:
+  ```bash
+  docker compose ps
+  ```
+  and:
+  ```bash
+  curl http://localhost:8000/healthz
+  ```
+  Grafana will be available at:
+  ```text
+  http://localhost:3000
+  ```
+  with the default credentials from the Compose configuration:
+  ```text
+  username: admin
+  password: admin
+  ```
+  ```bash
+  curl -i http://localhost:8000/api/orders/standard-1002
+  ```
+  ```text
+  HTTP/1.1 404 Not Found ✅
+  date: Wed, 30 Sep 2026 11:29:16 GMT
+  server: uvicorn
+  content-length: 28
+  content-type: application/json
+  ```
 
 ## Question 4: Configure the alert
 
