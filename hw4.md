@@ -221,7 +221,9 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
 ```
 
 - Modify Compose
+
 Add:
+
 ```text
 otel-collector
 prometheus
@@ -229,7 +231,9 @@ loki
 tempo
 grafana
 ```
+
 The application should send:
+
 ```text
 app
  │
@@ -237,12 +241,14 @@ app
  ├── logs ─────┼──> OTEL Collector
  └── traces ───┘
 ```
+
 The Collector then routes them:
 ```
 metrics → Prometheus
 logs    → Loki
 traces  → Tempo
 ```
+
 Grafana gets the three data sources.
 
 Rebuild containers
