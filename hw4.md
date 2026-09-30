@@ -72,7 +72,9 @@ uv add --requirements requirements.txt
 ```
 uv lock
 ```
+```
 Resolved 45 packages in 169ms
+```
 
 - Alternatively, edit Dockerfile:
 ```
