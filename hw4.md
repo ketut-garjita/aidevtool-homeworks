@@ -25,10 +25,11 @@ What does the health check return?
 - `pong`
 
 ### Solution:
+
+```bash
+curl http://localhost:8000/healthz
 ```
-$ curl http://localhost:8000/healthz
-```
-```
+```text
 {"status":"ok"}
 ```
 
@@ -59,25 +60,24 @@ Which HTTP status code does the metric record for this lookup?
 ### Solution:
 
 - Create requirements.txt
-```
+```text
 opentelemetry-sdk
 opentelemetry-exporter-otlp
 opentelemetry-instrumentation-fastapi
 opentelemetry-instrumentation-sqlite3
 ```
-
-```
+```bash
 uv add --requirements requirements.txt
 ```
-```
+```bash
 uv lock
 ```
-```
+```text
 Resolved 45 packages in 169ms
 ```
 
 - Alternatively, edit Dockerfile:
-```
+```text
 FROM python:3.12-slim
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.22 /uv /uvx /bin/
@@ -95,7 +95,7 @@ EXPOSE 8000
 CMD ["uv", "run", "--no-sync", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-```
+```bash
 docker compose down
 docker compose docker compose up --build -d --wait
 ```
@@ -103,7 +103,7 @@ docker compose docker compose up --build -d --wait
 - Create app/telemetry.py
 
 - app/main.py. Add these lines right after app = FastAPI(...):
-```
+```text
 import logging
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from app.telemetry import setup_telemetry
@@ -115,22 +115,21 @@ FastAPIInstrumentor.instrument_app(app, excluded_urls="healthz")
 ```
 
 - compose.yaml, under app.environment:
-```
+```text
 PYTHONUNBUFFERED: "1"      # otherwise console output may not appear in docker compose logs
 OTEL_EXPORTER: console     # change to "otlp" in Question 3
 # OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
 ```
 
-```
+```bash
 docker compose up --build -d --wait
 ```
 
 - curl -i localhost:8000/api/orders/standard-1001
-```
+```bash
 curl -i http://localhost:8000/api/orders/standard-1001
-```
- 
-```
+``` 
+```text
 HTTP/1.1 200 OK ✅
 date: Wed, 30 Sep 2026 04:35:01 GMT
 server: uvicorn
@@ -140,13 +139,12 @@ content-type: application/json
 {"id":"standard-1001","customer":"Avery","item":"Notebook","priority":"standard","status":"received","created_at":"2026-09-30T03:27:33.451878+00:00"}(.venv) deai@LAPTOP-GMRKPETB:~/pr
 ```
 
-```
+```bash
 docker compose logs app
 ```
-```
+```text
 app-1  | INFO:     127.0.0.1:40718 - "GET /healthz HTTP/1.1" 200 OK ✅
 ```
-
 
 ## Question 3: Build the telemetry pipeline
 
@@ -200,7 +198,7 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
   ```
 
   A sensible repository layout is:
-  ```
+  ```text
   order-tracker/
 ├── app/
 │   ├── main.py
@@ -223,7 +221,7 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
 
 - Modify Compose
 Add:
-```
+```text
 otel-collector
 prometheus
 loki
@@ -231,7 +229,7 @@ tempo
 grafana
 ```
 The application should send:
-```
+```text
 app
  │
  ├── metrics ──┐
@@ -247,24 +245,24 @@ traces  → Tempo
 Grafana gets the three data sources.
 
 Rebuild containers
-```
+```bash
 docker compose config
 docker compose up --build -d --wait
 ```
 Then check:
-```
+```bash
 docker compose ps
 ```
 and:
-```
+```bash
 curl http://localhost:8000/healthz
 ```
 Grafana will be available at:
-```
+```text
 http://localhost:3000
 ```
 with the default credentials from the Compose configuration:
-```
+```text
 username: admin
 password: admin
 ```
