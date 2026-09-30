@@ -167,6 +167,118 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
 - 301
 - 500
 
+### Solution:
+
+- build the telemetry stack
+  ```text
+                      ┌──────────────┐
+                    │ Order Tracker│
+                    │   FastAPI    │
+                    └──────┬───────┘
+                           │
+                 OTLP metrics/logs/traces
+                           │
+                           ▼
+                 ┌───────────────────┐
+                 │ OpenTelemetry     │
+                 │ Collector         │
+                 └─────┬─────┬───────┘
+                       │     │
+             ┌─────────┘     └──────────┐
+             ▼                          ▼
+        Prometheus                    Loki
+          metrics                       logs
+             │                          │
+             └──────────┬───────────────┘
+                        │
+                        ▼
+                      Grafana
+                        ▲
+                        │
+                      Tempo
+                      traces
+  ```
+
+  A sensible repository layout is:
+  ```
+  order-tracker/
+├── app/
+│   ├── main.py
+│   └── telemetry.py
+├── observability/
+│   ├── otel-collector-config.yaml
+│   ├── prometheus.yml
+│   ├── loki-config.yaml
+│   ├── tempo-config.yaml
+│   └── grafana/
+│       ├── provisioning/
+│       │   ├── datasources/
+│       │   │   └── datasources.yaml
+│       │   └── dashboards/
+│       │       └── dashboards.yaml
+│       └── dashboards/
+│           └── order-tracker.json
+└── compose.yaml
+```
+
+- Modify Compose
+Add:
+```
+otel-collector
+prometheus
+loki
+tempo
+grafana
+```
+The application should send:
+```
+app
+ │
+ ├── metrics ──┐
+ ├── logs ─────┼──> OTEL Collector
+ └── traces ───┘
+```
+The Collector then routes them:
+```
+metrics → Prometheus
+logs    → Loki
+traces  → Tempo
+```
+Grafana gets the three data sources.
+
+Rebuild containers
+```
+docker compose config
+docker compose up --build -d --wait
+```
+Then check:
+```
+docker compose ps
+```
+and:
+```
+curl http://localhost:8000/healthz
+```
+Grafana will be available at:
+```
+http://localhost:3000
+```
+with the default credentials from the Compose configuration:
+```
+username: admin
+password: admin
+```
+```bash
+curl -i http://localhost:8000/api/orders/standard-1002
+```
+```text
+HTTP/1.1 404 Not Found ✅
+date: Wed, 30 Sep 2026 11:29:16 GMT
+server: uvicorn
+content-length: 28
+content-type: application/json
+```
+
 ## Question 4: Configure the alert
 
 The dashboard shows errors when you open it, but it does not notify anyone on its own. An alert watches the `5xx` metric and changes state when server errors occur. Later, Grafana will send an HTTP request called a webhook to the responder so it can start investigating automatically.
