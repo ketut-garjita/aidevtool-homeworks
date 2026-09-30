@@ -198,25 +198,26 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
   ```
 
   A sensible repository layout is:
+  
   ```text
   order-tracker/
-├── app/
-│   ├── main.py
-│   └── telemetry.py
-├── observability/
-│   ├── otel-collector-config.yaml
-│   ├── prometheus.yml
-│   ├── loki-config.yaml
-│   ├── tempo-config.yaml
-│   └── grafana/
-│       ├── provisioning/
-│       │   ├── datasources/
-│       │   │   └── datasources.yaml
-│       │   └── dashboards/
-│       │       └── dashboards.yaml
-│       └── dashboards/
-│           └── order-tracker.json
-└── compose.yaml
+    ├── app/
+    │   ├── main.py
+    │   └── telemetry.py
+    ├── observability/
+    │   ├── otel-collector-config.yaml
+    │   ├── prometheus.yml
+    │   ├── loki-config.yaml
+    │   ├── tempo-config.yaml
+    │   └── grafana/
+    │       ├── provisioning/
+    │       │   ├── datasources/
+    │       │   │   └── datasources.yaml
+    │       │   └── dashboards/
+    │       │       └── dashboards.yaml
+    │       └── dashboards/
+    │           └── order-tracker.json
+    └── compose.yaml
 ```
 
 - Modify Compose
