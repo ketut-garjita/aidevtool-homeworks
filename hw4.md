@@ -220,7 +220,7 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
     └── compose.yaml
   ```
 
-- Modify Compose
+- Modify Compose and test
 
   Add:
   
