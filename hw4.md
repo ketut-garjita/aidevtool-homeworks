@@ -24,7 +24,13 @@ What does the health check return?
 - `{"orders":3}`
 - `pong`
 
-For this and the next questions, you can ask your coding assistant to help select the correct option.
+### Solution:
+```
+$ curl http://localhost:8000/healthz
+```
+```
+{"status":"ok"}
+```
 
 ## Question 2: Instrument one endpoint
 
@@ -49,6 +55,96 @@ Which HTTP status code does the metric record for this lookup?
 - 301
 - 404
 - 500
+
+### Solution:
+
+- Create requirements.txt
+```
+opentelemetry-sdk
+opentelemetry-exporter-otlp
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-sqlite3
+```
+
+```
+uv add --requirements requirements.txt
+```
+```
+uv lock
+```
+Resolved 45 packages in 169ms
+
+- Alternatively, edit Dockerfile:
+```
+FROM python:3.12-slim
+
+COPY --from=ghcr.io/astral-sh/uv:0.8.22 /uv /uvx /bin/
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+COPY app ./app
+COPY static ./static
+ENV ORDER_DB_PATH=/data/orders.db
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 8000
+CMD ["uv", "run", "--no-sync", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+```
+docker compose down
+docker compose docker compose up --build -d --wait
+```
+
+- Create app/telemetry.py
+
+- app/main.py. Add these lines right after app = FastAPI(...):
+```
+import logging
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from app.telemetry import setup_telemetry
+
+logger = logging.getLogger("order-tracker")
+
+setup_telemetry()
+FastAPIInstrumentor.instrument_app(app, excluded_urls="healthz")
+```
+
+- compose.yaml, under app.environment:
+```
+PYTHONUNBUFFERED: "1"      # otherwise console output may not appear in docker compose logs
+OTEL_EXPORTER: console     # change to "otlp" in Question 3
+# OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+```
+
+```
+docker compose up --build -d --wait
+```
+
+- curl -i localhost:8000/api/orders/standard-1001
+```
+curl -i http://localhost:8000/api/orders/standard-1001
+```
+ 
+```
+HTTP/1.1 200 OK
+date: Wed, 30 Sep 2026 04:35:01 GMT
+server: uvicorn
+content-length: 149
+content-type: application/json
+
+{"id":"standard-1001","customer":"Avery","item":"Notebook","priority":"standard","status":"received","created_at":"2026-09-30T03:27:33.451878+00:00"}(.venv) deai@LAPTOP-GMRKPETB:~/pr
+```
+
+```
+docker compose logs app
+```
+```
+app-1  | INFO:     127.0.0.1:40718 - "GET /healthz HTTP/1.1" 200 OK
+```
+
 
 ## Question 3: Build the telemetry pipeline
 
