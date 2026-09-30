@@ -225,11 +225,11 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
 Add:
 
 ```text
-otel-collector
-prometheus
-loki
-tempo
-grafana
+  otel-collector
+  prometheus
+  loki
+  tempo
+  grafana
 ```
 
 The application should send:
