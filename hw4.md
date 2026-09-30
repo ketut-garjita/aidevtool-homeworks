@@ -131,7 +131,7 @@ curl -i http://localhost:8000/api/orders/standard-1001
 ```
  
 ```
-HTTP/1.1 200 OK
+HTTP/1.1 200 OK ✅
 date: Wed, 30 Sep 2026 04:35:01 GMT
 server: uvicorn
 content-length: 149
