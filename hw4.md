@@ -110,6 +110,11 @@ Wait for the agent to finish, then read its response.
 
 What did the agent respond? Include the last line from its answer.
 
+### Answer: ✅
+```
+"summary": "Test notification; no incident to fix"
+```
+
 ## Question 6: Watch the agent fix the incident
 
 Now test the complete flow with a real Grafana alert.
