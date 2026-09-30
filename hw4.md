@@ -144,7 +144,7 @@ content-type: application/json
 docker compose logs app
 ```
 ```
-app-1  | INFO:     127.0.0.1:40718 - "GET /healthz HTTP/1.1" 200 OK
+app-1  | INFO:     127.0.0.1:40718 - "GET /healthz HTTP/1.1" 200 OK ✅
 ```
 
 
