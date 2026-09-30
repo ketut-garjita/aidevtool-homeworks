@@ -218,29 +218,29 @@ In Grafana, find the request metric for this lookup. Check that its log and trac
     │       └── dashboards/
     │           └── order-tracker.json
     └── compose.yaml
-```
+  ```
 
 - Modify Compose
 
 Add:
 
-```text
-  otel-collector
-  prometheus
-  loki
-  tempo
-  grafana
-```
+  ```text
+    otel-collector
+    prometheus
+    loki
+    tempo
+    grafana
+  ```
 
 The application should send:
 
-```text
-app
- │
- ├── metrics ──┐
- ├── logs ─────┼──> OTEL Collector
- └── traces ───┘
-```
+  ```text
+  app
+   │
+   ├── metrics ──┐
+   ├── logs ─────┼──> OTEL Collector
+   └── traces ───┘
+  ```
 
 The Collector then routes them:
 ```
