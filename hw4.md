@@ -334,101 +334,102 @@ What did the agent respond? Include the last line from its answer.
 
 ### Solution: 
 
-- Create ./incident-response.run.sh
+Create ./incident-response.run.sh
   ```bach
   #!/usr/bin/env bash
   cd "$(dirname "$0")"
   exec uv run uvicorn main:app --host 0.0.0.0 --port 8001
   ```
+Exec uv run
+  ```bash
+   ./incident-response/run.sh
+  ```
+  ```text
+  INFO:     Started server process [11139]
+  INFO:     Waiting for application startup.
+  INFO:     Application startup complete.
+  INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+  INFO:     127.0.0.1:45122 - "POST /alerts HTTP/1.1" 200 OK
+  ```
 
-```bash
- ./incident-response/run.sh
-```
-```text
-INFO:     Started server process [11139]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-INFO:     127.0.0.1:45122 - "POST /alerts HTTP/1.1" 200 OK
-```
+Test curl in another terminal:
+  ```bash
+  curl -X POST http://localhost:8001/alerts \
+    -H 'Content-Type: application/json' \
+    -d '{"alerts":[{"status":"firing","labels":{"alertname":"ResponderTest","test":"true"},"annotations":{"summary":"Test notification; no incident to fix"}}]}'
+  ```
 
-Open another terminal:
-```bash
-curl -X POST http://localhost:8001/alerts \
-  -H 'Content-Type: application/json' \
-  -d '{"alerts":[{"status":"firing","labels":{"alertname":"ResponderTest","test":"true"},"annotations":{"summary":"Test notification; no incident to fix"}}]}'
-```
-
-```bash
-ls -al ~/projects/order-tracker/incidents/20261001T064835Z
-```
-```text
-total 36
-drwxr-xr-x 2 deai deai 4096 Oct  1 13:48 .
-drwxr-xr-x 3 deai deai 4096 Oct  1 13:49 ..
--rw-r--r-- 1 deai deai 2536 Oct  1 13:48 agent-response.txt
--rw-r--r-- 1 deai deai  237 Oct  1 13:48 alert.json
--rw-r--r-- 1 deai deai  153 Oct  1 13:48 incident.md
--rw-r--r-- 1 deai deai  125 Oct  1 13:48 last-message.txt
--rw-r--r-- 1 deai deai    6 Oct  1 13:48 logs.txt
--rw-r--r-- 1 deai deai    6 Oct  1 13:48 traces.txt
--rw-r--r-- 1 deai deai 1626 Oct  1 13:48 verification.txt
-```
-
-```bash
-tail -n 10 agent-response.txt
-```
-```text
-- Status: firing
-- Endpoint: not provided
-- Summary: Test notification; no incident to fix
-- Description: not providedready
-ready
-
-codex
-This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything.
-tokens used
-3,701
-```
-
-```bash
-cat verification.txt
-```
-```text
-exit=0
-...                                                                      [100%]
-=============================== warnings summary ===============================
-.venv/lib/python3.14/site-packages/fastapi/testclient.py:1
-  /home/deai/projects/order-tracker/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
-    from starlette.testclient import TestClient as TestClient  # noqa
-
-.venv/lib/python3.14/site-packages/starlette/testclient.py:53
-  /home/deai/projects/order-tracker/.venv/lib/python3.14/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
-    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
-
-app/telemetry.py:34
-  /home/deai/projects/order-tracker/app/telemetry.py:34: DeprecationWarning: Use ConsoleLogRecordExporter. Since logs are not stable yet this WILL be removed in future releases.
-    return ConsoleSpanExporter(), ConsoleMetricExporter(), ConsoleLogExporter()
-
-.venv/lib/python3.14/site-packages/opentelemetry/sdk/_logs/_internal/__init__.py:615
-  /home/deai/projects/order-tracker/.venv/lib/python3.14/site-packages/opentelemetry/sdk/_logs/_internal/__init__.py:615: DeprecationWarning: `LoggingHandler` in `opentelemetry-sdk` is deprecated. Use the handler from `opentelemetry-instrumentation-logging` instead.
-    warnings.warn(
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-3 passed, 4 warnings in 0.26s
-```
-
-```bash
- cat last-message.txt
-```
-```text
-This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything.
-```
+Check logs:
+  ```bash
+  ls -al ~/projects/order-tracker/incidents/20261001T064835Z
+  ```
+  ```text
+  total 36
+  drwxr-xr-x 2 deai deai 4096 Oct  1 13:48 .
+  drwxr-xr-x 3 deai deai 4096 Oct  1 13:49 ..
+  -rw-r--r-- 1 deai deai 2536 Oct  1 13:48 agent-response.txt
+  -rw-r--r-- 1 deai deai  237 Oct  1 13:48 alert.json
+  -rw-r--r-- 1 deai deai  153 Oct  1 13:48 incident.md
+  -rw-r--r-- 1 deai deai  125 Oct  1 13:48 last-message.txt
+  -rw-r--r-- 1 deai deai    6 Oct  1 13:48 logs.txt
+  -rw-r--r-- 1 deai deai    6 Oct  1 13:48 traces.txt
+  -rw-r--r-- 1 deai deai 1626 Oct  1 13:48 verification.txt
+  ```
+  
+  ```bash
+  tail -n 10 agent-response.txt
+  ```
+  ```text
+  - Status: firing
+  - Endpoint: not provided
+  - Summary: Test notification; no incident to fix
+  - Description: not providedready
+  ready
+  
+  codex
+  This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything.
+  tokens used
+  3,701
+  ```
+  
+  ```bash
+  cat verification.txt
+  ```
+  ```text
+  exit=0
+  ...                                                                      [100%]
+  =============================== warnings summary ===============================
+  .venv/lib/python3.14/site-packages/fastapi/testclient.py:1
+    /home/deai/projects/order-tracker/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+      from starlette.testclient import TestClient as TestClient  # noqa
+  
+  .venv/lib/python3.14/site-packages/starlette/testclient.py:53
+    /home/deai/projects/order-tracker/.venv/lib/python3.14/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+      _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+  
+  app/telemetry.py:34
+    /home/deai/projects/order-tracker/app/telemetry.py:34: DeprecationWarning: Use ConsoleLogRecordExporter. Since logs are not stable yet this WILL be removed in future releases.
+      return ConsoleSpanExporter(), ConsoleMetricExporter(), ConsoleLogExporter()
+  
+  .venv/lib/python3.14/site-packages/opentelemetry/sdk/_logs/_internal/__init__.py:615
+    /home/deai/projects/order-tracker/.venv/lib/python3.14/site-packages/opentelemetry/sdk/_logs/_internal/__init__.py:615: DeprecationWarning: `LoggingHandler` in `opentelemetry-sdk` is deprecated. Use the handler from `opentelemetry-instrumentation-logging` instead.
+      warnings.warn(
+  
+  -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+  3 passed, 4 warnings in 0.26s
+  ```
+  
+  ```bash
+   cat last-message.txt
+  ```
+  ```text
+  This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything.
+  ```
 
 The last line of its answer is: 
-```text
-This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything ✅
-```
+  ```text
+  This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything ✅
+  ```
 
 
 ## Question 6: Watch the agent fix the incident
