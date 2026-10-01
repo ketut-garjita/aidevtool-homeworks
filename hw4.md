@@ -332,7 +332,30 @@ Wait for the agent to finish, then read its response.
 
 What did the agent respond? Include the last line from its answer.
 
-### Answer: ✅
+### Solution: ✅
+
+```bash
+cd ~/projects/order-tracker/incident-response
+export REPO_DIR=$HOME/projects/order-tracker
+export INCIDENTS_DIR=$REPO_DIR/incidents
+export LOKI_URL=http://localhost:3100
+export TEMPO_URL=http://localhost:3200
+export CODING_AGENT_COMMAND="codex exec --skip-git-repo-check -C $REPO_DIR --output-last-message $REPO_DIR/incidents/last-message.txt -"
+uv run uvicorn main:app --port 8001
+```
+```text
+INFO:     Started server process [5102]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:38624 - "POST /alerts HTTP/1.1" 200 OK
+```
+
+```
+curl -X POST http://localhost:8001/alerts \
+  -H 'Content-Type: application/json' \
+  -d '{"alerts":[{"status":"firing","labels":{"alertname":"ResponderTest","test":"true"},"annotations":{"summary":"Test notification; no incident to fix"}}]}'
+```
 
 The agent's answer, from agent-response.txt, was:
 
@@ -341,6 +364,7 @@ This was a responder test, not an application incident. The alert summary says "
 ```
 
 The last line of its answer is: "**No application code was changed, so no tests were needed.**"
+
 
 ## Question 6: Watch the agent fix the incident
 
