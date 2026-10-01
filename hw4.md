@@ -334,6 +334,13 @@ What did the agent respond? Include the last line from its answer.
 
 ### Solution: 
 
+- Create ./incident-response.run.sh
+  ```bach
+  #!/usr/bin/env bash
+  cd "$(dirname "$0")"
+  exec uv run uvicorn main:app --host 0.0.0.0 --port 8001
+  ```
+
 ```bash
  ./incident-response/run.sh
 ```
