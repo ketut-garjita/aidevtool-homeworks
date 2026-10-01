@@ -332,7 +332,7 @@ Wait for the agent to finish, then read its response.
 
 What did the agent respond? Include the last line from its answer.
 
-### Solution: ✅
+### Solution: 
 
 ```bash
 cd ~/projects/order-tracker/incident-response
@@ -363,7 +363,7 @@ The agent's answer, from agent-response.txt, was:
 This was a responder test, not an application incident. The alert summary says "Test notification; no incident to fix," and the evidence bundle contains only ready log and trace entries. No application code was changed, so no tests were needed.
 ```
 
-The last line of its answer is: "**No application code was changed, so no tests were needed.**"
+The last line of its answer is: "**No application code was changed, so no tests were needed.**" ✅
 
 
 ## Question 6: Watch the agent fix the incident
