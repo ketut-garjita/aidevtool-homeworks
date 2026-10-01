@@ -354,6 +354,8 @@ curl -X POST http://localhost:8001/alerts \
 
 ```bash
 ls -al ~/projects/order-tracker/incidents/20261001T064835Z
+```
+```text
 total 36
 drwxr-xr-x 2 deai deai 4096 Oct  1 13:48 .
 drwxr-xr-x 3 deai deai 4096 Oct  1 13:49 ..
