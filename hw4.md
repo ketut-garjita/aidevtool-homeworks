@@ -336,7 +336,7 @@ What did the agent respond? Include the last line from its answer.
 
 The agent's answer, from agent-response.txt, was:
 
-``text
+```text
 This was a responder test, not an application incident. The alert summary says "Test notification; no incident to fix," and the evidence bundle contains only ready log and trace entries. No application code was changed, so no tests were needed.
 ```
 
