@@ -411,7 +411,7 @@ The "Connection reset by peer" error on the first line almost certainly occurred
 
 Answer Q6
 ```
-The express delivery date calculation tried to use a day that does not exist in that month.
+The express delivery date calculation tried to use a day that does not exist in that month.  ✅
 ```
 
 Exec uv run
@@ -494,5 +494,5 @@ Check logs:
 
 The last line of its answer is: 
   ```text
-  No root cause or real incident is indicated. No fix is required; I made no code changes and ran no tests. ✅
+  No root cause or real incident is indicated. No fix is required; I made no code changes and ran no tests.
   ```
