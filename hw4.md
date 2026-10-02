@@ -310,6 +310,7 @@ Q3 = 404
 Alert condition = 5xx
 404 does not trigger a 5xx alert
 ```
+![grafana status](assets/grafana-status.png)
 
 ## Question 5: Build the automatic responder
 
