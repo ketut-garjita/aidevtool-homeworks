@@ -360,38 +360,101 @@ Test curl in another terminal:
     -H 'Content-Type: application/json' \
     -d '{"alerts":[{"status":"firing","labels":{"alertname":"ResponderTest","test":"true"},"annotations":{"summary":"Test notification; no incident to fix"}}]}'
   ```
+The agent respond?:
+```
+No application code was changed. No fix is required. I did not run tests because there was no code change to verify. The workspace already contains unrelated modifications; I left them untouched.
+```
+The last line from its answer:
+ ```
+The workspace already contains unrelated modifications; I left them untouched
+```
 
+## Question 6: Watch the agent fix the incident
+
+Now test the complete flow with a real Grafana alert.
+
+Connect the Grafana alert to the responder through a webhook.
+
+Let's make this request:
+
+```bash
+curl -i http://localhost:8000/api/orders/express-1002
+```
+
+This request is problematic and should cause the alert to fire. If it doesn't repeat it multiple times. Then watch Grafana send the webhook to `/alerts`, and the responder start automatically.
+
+Wait for the agent to fix the problem, restart the app and verify that the same request doesn't cause the problem to appear.
+
+What was the problem?
+
+- The express delivery date calculation tried to use a day that does not exist in that month. ✅
+- The order timestamp could not be parsed because it had no time zone.
+- The app rejected the order's `preparing` status.
+- The lookup searched the wrong database column for express orders.
+
+### Solution:
+
+```bash
+curl -i http://localhost:8000/api/orders/express-1002
+```
+```text
+HTTP/1.1 200 OK
+date: Thu, 01 Oct 2026 07:54:24 GMT
+server: uvicorn
+content-length: 182
+content-type: application/json
+{"id":"express-1002","customer":"Sam","item":"Headphones","priority":"express","status":"preparing","created_at":"2026-08-31T03:27:33.451878+00:00","estimated_delivery":"2026-09-02"}
+```
+
+The fix worked. The request that previously resulted in a 500 error now returns a "200 OK" with `"estimated_delivery":"2026-09-02"`. The date is correct: `created_at` was August 31st, and adding 2 days results in September 2nd. With the old code, the calculation 31 + 2 = 33 yielded a date that doesn't exist in any month, which is what caused the 500 error.
+The "Connection reset by peer" error on the first line almost certainly occurred because the app was restarting (rebuilding the container), and the second, successful `curl` request confirms this.
+
+Answer Q6
+```
+The express delivery date calculation tried to use a day that does not exist in that month.
+```
+
+Exec uv run
+  ```bash
+   ./incident-response/run.sh
+  ```
+Test curl in another terminal:
+  ```bash
+  curl -X POST http://localhost:8001/alerts \
+    -H 'Content-Type: application/json' \
+    -d '{"alerts":[{"status":"firing","labels":{"alertname":"ResponderTest","test":"true"},"annotations":{"summary":"Test notification; no incident to fix"}}]}'
+  ```
 Check logs:
   ```bash
-  ls -al ~/projects/order-tracker/incidents/20261001T064835Z
-  ```
-  ```text
-  total 36
-  drwxr-xr-x 2 deai deai 4096 Oct  1 13:48 .
-  drwxr-xr-x 3 deai deai 4096 Oct  1 13:49 ..
-  -rw-r--r-- 1 deai deai 2536 Oct  1 13:48 agent-response.txt
-  -rw-r--r-- 1 deai deai  237 Oct  1 13:48 alert.json
-  -rw-r--r-- 1 deai deai  153 Oct  1 13:48 incident.md
-  -rw-r--r-- 1 deai deai  125 Oct  1 13:48 last-message.txt
-  -rw-r--r-- 1 deai deai    6 Oct  1 13:48 logs.txt
-  -rw-r--r-- 1 deai deai    6 Oct  1 13:48 traces.txt
-  -rw-r--r-- 1 deai deai 1626 Oct  1 13:48 verification.txt
+   $ ls -al
+  total 44
+  drwxr-xr-x 2 deai deai 4096 Oct  2 14:23 .
+  drwxr-xr-x 3 deai deai 4096 Oct  2 14:23 ..
+  -rw-r--r-- 1 deai deai 7806 Oct  2 14:23 agent-response.txt
+  -rw-r--r-- 1 deai deai  237 Oct  2 14:23 alert.json
+  -rw-r--r-- 1 deai deai  136 Oct  2 14:23 incident.md
+  -rw-r--r-- 1 deai deai  277 Oct  2 14:23 last-message.txt
+  -rw-r--r-- 1 deai deai 4407 Oct  2 14:23 logs.txt
+  -rw-r--r-- 1 deai deai  112 Oct  2 14:23 traces.txt
+  -rw-r--r-- 1 deai deai 1626 Oct  2 14:23 verification.txt
   ```
   
   ```bash
   tail -n 10 agent-response.txt
+  ```bash
+  tail -n 10 agent-response.txt
   ```
   ```text
-  - Status: firing
-  - Endpoint: not provided
-  - Summary: Test notification; no incident to fix
-  - Description: not providedready
-  ready
-  
+      "completedJobs": 3,
+      "totalJobs": 3
+    }
+  }
   codex
-  This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything.
+  This is a responder test: `alert.json` has `test: "true"` and says “Test notification; no incident to fix.” The logs contain no entries, and the traces list is empty.
+  
+  No root cause or real incident is indicated. No fix is required; I made no code changes and ran no tests.
   tokens used
-  3,701
+  4,969
   ```
   
   ```bash
@@ -425,84 +488,11 @@ Check logs:
    cat last-message.txt
   ```
   ```text
-  This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything.
+  This is a responder test: `alert.json` has `test: "true"` and says “Test notification; no incident to fix.” The logs contain no entries, and the traces list is empty.
+  No root cause or real incident is indicated. No fix is required; I made no code changes and ran no tests.
   ```
 
 The last line of its answer is: 
   ```text
-  This is a responder test (`test=true`) with no real incident. No fix is required, and I made no code changes or ran anything ✅
+  No root cause or real incident is indicated. No fix is required; I made no code changes and ran no tests. ✅
   ```
-
-
-## Question 6: Watch the agent fix the incident
-
-Now test the complete flow with a real Grafana alert.
-
-Connect the Grafana alert to the responder through a webhook.
-
-Let's make this request:
-
-```bash
-curl -i http://localhost:8000/api/orders/express-1002
-```
-
-This request is problematic and should cause the alert to fire. If it doesn't repeat it multiple times. Then watch Grafana send the webhook to `/alerts`, and the responder start automatically.
-
-Wait for the agent to fix the problem, restart the app and verify that the same request doesn't cause the problem to appear.
-
-What was the problem?
-
-- The express delivery date calculation tried to use a day that does not exist in that month.
-- The order timestamp could not be parsed because it had no time zone.
-- The app rejected the order's `preparing` status.
-- The lookup searched the wrong database column for express orders.
-
-
-## Submission
-
-Submit your homework on the [course platform](https://courses.datatalks.club/ai-dev-tools-2026/homework/hw4). Use the link to your repository. Commit and push your telemetry and alert configuration, responder, incident evidence, and agent's fix.
-
-## Learning in Public
-
-We encourage everyone to share what they learned. This is called "learning in public". Read more about why it matters here: https://datatalks.club/blog/benefits-of-learning-in-public.html
-
-Don't worry about being perfect. Everyone starts somewhere, and people love following genuine learning journeys!
-
-### Example post for LinkedIn:
-
-```
-🚀 Week 4 of AI Dev Tools Zoomcamp by @DataTalksClub complete!
-
-I investigated a failed Order Tracker release and recovered the app.
-
-Today I learned how to:
-
-✅ Instrument an app with OpenTelemetry: metrics, logs, traces
-✅ View the signals together in Grafana
-✅ Alert on real user impact, not CPU graphs
-✅ Trigger a headless coding agent from an alert
-✅ Deploy a checked fix or escalate automatically
-
-Here's my repo: <LINK>
-
-Following along with this amazing course - who else is automating ops with AI?
-
-You can sign up here: https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/
-```
-
-### Example post for Twitter/X:
-
-```
-🤖 Made Order Tracker observable and tested an incident response loop!
-
-📈 Metrics, logs, traces
-🔔 Alerts on real user impact
-🕵️ Agent investigates, policy authorizes
-✅ Fix and verify, or escalate
-
-My repo: <LINK>
-
-The model may reason. The system must observe, authorize, verify, and remember.
-
-Join me: https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/
-```
