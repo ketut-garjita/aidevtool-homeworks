@@ -303,7 +303,8 @@ Wait for the alert to evaluate. What state does Grafana show?
 - Pending
 - No data
 
-Reason:
+### Solution:
+
 ```text
 Q3 = 404
 Alert condition = 5xx
