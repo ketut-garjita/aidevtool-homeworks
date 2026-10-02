@@ -44,8 +44,8 @@ My Project: [https://github.com/ketut-garjita/agent-relay](https://github.com/ke
 
 Homework: [https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/04-devops/homework.md](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/04-devops/homework.md)
 
-My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw3.md](https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw4.md)
+My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw4.md](https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw4.md)
 
-My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/homework/hw3](https://courses.datatalks.club/ai-dev-tools-2026/homework/hw4)
+My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/homework/hw4](https://courses.datatalks.club/ai-dev-tools-2026/homework/hw4)
 
 My Project: [https://github.com/ketut-garjita/order-tracker-v2](https://github.com/ketut-garjita/order-tracker-v2)
