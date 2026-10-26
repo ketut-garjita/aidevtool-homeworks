@@ -51,6 +51,7 @@ My Project: [https://github.com/ketut-garjita/order-tracker-v2](https://github.c
 
 ---
 **Project**
+
 My Final Project: [Aura Gear: Real-Time E-Commerce Customer Support Platform](https://github.com/ketut-garjita/aidevtools)
 
 ---
