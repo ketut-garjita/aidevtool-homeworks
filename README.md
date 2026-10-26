@@ -39,7 +39,6 @@ My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/homework/hw3](h
 My Project: [https://github.com/ketut-garjita/agent-relay](https://github.com/ketut-garjita/agent-relay)
 
 ---
----
 **Module 4: DevOps and Observability for AI-Built Apps**
 
 Homework: [https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/04-devops/homework.md](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/cohorts/2026/homework/04-devops/homework.md)
@@ -49,3 +48,9 @@ My Answer: [https://github.com/ketut-garjita/aidevtool-homeworks/blob/main/hw4.m
 My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/homework/hw4](https://courses.datatalks.club/ai-dev-tools-2026/homework/hw4)
 
 My Project: [https://github.com/ketut-garjita/order-tracker-v2](https://github.com/ketut-garjita/order-tracker-v2)
+
+---
+**Project**
+My Final Project: [Aura Gear: Real-Time E-Commerce Customer Support Platform](https://github.com/ketut-garjita/aidevtools)
+
+---
