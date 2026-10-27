@@ -52,7 +52,7 @@ My Project: [https://github.com/ketut-garjita/order-tracker-v2](https://github.c
 ---
 **Project**
 
-My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/project/project1](https://courses.datatalks.club/ai-dev-tools-2026/project/project1}
+My Submission: [https://courses.datatalks.club/ai-dev-tools-2026/project/project1](https://courses.datatalks.club/ai-dev-tools-2026/project/project1)
 
 My Final Project: [Aura Gear: Real-Time E-Commerce Customer Support Platform](https://github.com/ketut-garjita/aidevtools)
 
